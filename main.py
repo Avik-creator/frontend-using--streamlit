@@ -1,4 +1,7 @@
 import streamlit as st
+from textblob import TextBlob
+
+
 
 def main():
     st.set_page_config(page_title="Job Fit Predictor", page_icon=":shark:", layout="wide")
@@ -7,6 +10,22 @@ def main():
     uploaded_file = st.sidebar.file_uploader("Upload your Resume", type=['pdf', 'png', 'jpg', 'jpeg', 'md'], help='Upload your resume in PDF, Image or Markdown Format', key="fileuploader",accept_multiple_files=False)
     st.sidebar.title("Job Description")
     job_description = st.sidebar.text_area("Enter the Job Description", height=400, help="Enter the job description for which you want to predict the job fit")
+
+
+    # Need to Parse the Uploaded File and then automatically detect the language(other than English) and translate it to English
+    # Need to extract the text from the uploaded file
+
+    # Need to extract the text from the job description
+    # Need to detect the language(other than English) and translate it to English
+
+    def translate_text(text, target_language="en"):
+        lang = TextBlob(text)
+        if lang.detect_language() != "en":
+            return lang.detect_language()
+        else:
+            return text
+        
+    
 
     st.title("Analysis Results")
 
