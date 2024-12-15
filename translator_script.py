@@ -19,7 +19,6 @@ def process_uploaded_file(file_path):
             print("The text is already in English.")
             return extracted_text
 
-      
         translated_text = GoogleTranslator(source=detectLanguage, target='en').translate(extracted_text)
         return translated_text
 
