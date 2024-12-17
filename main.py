@@ -1,6 +1,7 @@
 import streamlit as st
 import os
 import time  # Simulate delay for the model processing
+from translator_script import *
 
 
 def save_uploaded_file(uploaded_file, upload_dir="uploads"):
@@ -53,7 +54,12 @@ def main():
     )
 
     if uploaded_file:
-        save_uploaded_file(uploaded_file)
+       saved_path = save_uploaded_file(uploaded_file)
+       save_dir = r"D:\Coding\Final Year\frontend\frontend-using--streamlit"
+       saved_path1 = ''.join(str(saved_path[1]))
+       saved_path_actual = os.path.join(save_dir,saved_path1)
+    #    print(saved_path_actual)
+       print(process_uploaded_file(saved_path_actual))
 
     st.title("Analysis Results")
 
