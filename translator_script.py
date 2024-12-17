@@ -28,7 +28,7 @@ def process_uploaded_file(file_path):
 
 
 if __name__ == "__main__":
-    file_path = "cv13.docx"  
+    # file_path = "cv13.docx"  
     translated_text = process_uploaded_file(file_path)
     if translated_text:
         print("Translated Text:")
