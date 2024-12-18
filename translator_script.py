@@ -2,14 +2,14 @@ from deep_translator import GoogleTranslator
 import textract
 from langdetect import detect_langs
 
-def process_uploaded_file(file_path):
+def process_uploaded_file(extracted_text):
    
     try:
         
-        extracted_text = textract.process(file_path).decode('utf-8')
+        # extracted_text = textract.process(file_path).decode('utf-8')
         
-        if not extracted_text.strip():
-            raise ValueError("No text could be extracted from the file.")
+        # if not extracted_text.strip():
+        #     raise ValueError("No text could be extracted from the file.")
 
        
         detectLanguages = detect_langs(extracted_text)

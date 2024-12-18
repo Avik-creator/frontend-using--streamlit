@@ -1,8 +1,11 @@
 import streamlit as st
 import os
 import time  # Simulate delay for the model processing
-from translator_script import *
+from translator_script import process_uploaded_file
+from Parsing import *
 
+#Global variable to get the path
+saved_path_actual = ""
 
 def save_uploaded_file(uploaded_file, upload_dir="uploads"):
     try:
@@ -55,11 +58,12 @@ def main():
 
     if uploaded_file:
        saved_path = save_uploaded_file(uploaded_file)
-       save_dir = r"D:\Coding\Final Year\frontend\frontend-using--streamlit"
-       saved_path1 = ''.join(str(saved_path[1]))
-       saved_path_actual = os.path.join(save_dir,saved_path1)
-    #    print(saved_path_actual)
-       print(process_uploaded_file(saved_path_actual))
+       save_dir = "D:/Coding/Final Year/Jobfit Predictor/Jobfit_Predictor/uploads/"
+       path = saved_path[1].split("\\")
+       saved_path_actual = os.path.join(save_dir,str(path[1]))
+       print(1234)
+
+       print(saved_path_actual)
 
     st.title("Analysis Results")
 
@@ -104,7 +108,9 @@ def main():
             st.subheader("Resume Improvement Suggestions")
             for i, suggestion in enumerate(suggestions, 1):
                 st.markdown(f"**{i}.** {suggestion}")
-
+        if saved_path:
+            text = main_parse(saved_path_actual)
+            print(process_uploaded_file(text))
     else:
         st.info("Please upload a resume and enter a job description in the sidebar.")
 
