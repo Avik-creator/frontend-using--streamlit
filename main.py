@@ -110,7 +110,7 @@ def main():
                 st.markdown(f"**{i}.** {suggestion}")
         if saved_path:
             text = main_parse(saved_path_actual)
-            print(process_uploaded_file(text))
+            st.write(process_uploaded_file(text))
     else:
         st.info("Please upload a resume and enter a job description in the sidebar.")
 
