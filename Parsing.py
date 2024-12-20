@@ -10,8 +10,10 @@ from PIL import Image
 import subprocess
 import numpy as np
 from gradio_client import Client, handle_file
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
-temp_fil_loc = "D:/Coding/Final Year/Jobfit Predictor/Jobfit_Predictor/temp_files"
+temp_fil_loc = os.path.join(PROJECT_ROOT, "temp_files")
+print(temp_fil_loc)
 best_x = -1
 c = 0 
 
@@ -124,21 +126,26 @@ def removing_candidate_pic(path):
             lines = f.readlines()
             for line in lines:
                 values = line.split()
-                class_id = int(values[5])
-                if class_id == 0:
-                    if c == 1:
-                        height_norm1 = float(values[3])
-                        if height_norm1 > height_norm:
-                            break
-                    c = c + 1
-                    x1 = float(values[0])
-                    y1 = float(values[1])
-                    x2 = float(values[2])
-                    y2 = float(values[3])
+                try:
+                    class_id = int(values[5])
+                    if class_id == 0:
+                        if c == 1:
+                            
+                            height_norm1 = float(values[3])
+                            if height_norm1 > height_norm:
+                                break
+                        c = c + 1
+                        x1 = float(values[0])
+                        y1 = float(values[1])
+                        x2 = float(values[2])
+                        y2 = float(values[3])
+                        height_norm = y2 - y1
 
-        x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
-        print(f"Coordinates: x1={x1}, y1={y1}, x2={x2}, y2={y2}")
-    f.close()            
+                    x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
+                    print(f"Coordinates: x1={x1}, y1={y1}, x2={x2}, y2={y2}")
+                except:
+                    x1 = x2 = y1 = y2 = 0
+        f.close()            
     cv2.rectangle(image, (x1, y1), (x2, y2), (255, 255, 255), -1)
     image2 = cv2_to_pil(image)
     image2.save(temp_fil_loc+'/results_person_removed.png','PNG')
@@ -521,7 +528,8 @@ def extraction_of_text(left_image):
     text = text + str("Second column: " )+"\n"
     text = text + right_text + '\n' + "==================================================================" + "\n"
     
-    white_page = Image.open('D:\Coding\Final Year\Jobfit Predictor\Jobfit_Predictor\White_page.png')
+    # white_page = Image.open('D:\Coding\Final Year\Jobfit Predictor\Jobfit_Predictor\White_page.png')
+    white_page = Image.open(os.path.join(PROJECT_ROOT, "White_page.png"))
     white_page.save(left_image,'PNG')
     white_page.save(right_image,'PNG')
     return text
@@ -543,5 +551,5 @@ def main_parse(resume_link):
     # print(text)
     return text
     
-if __name__ == "__main__":
-    main_parse("D:/Coding/Final Year/Jobfit Predictor/Jobfit_Predictor/uploads/Test.jpg")
+# if __name__ == "__main__":
+#     main_parse("D:/Coding/Final Year/Jobfit Predictor/Jobfit_Predictor/uploads/Test.jpg")

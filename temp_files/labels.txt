@@ -1,1 +1,3 @@
-70.81234 19.807297 222.405701 148.851776 0.847419 0 person
+Empty DataFrame
+Columns: [xmin, ymin, xmax, ymax, confidence, class, name]
+Index: []
