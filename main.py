@@ -4,6 +4,7 @@ import time  # Simulate delay for the model processing
 from translator_script import process_uploaded_file
 from Parsing import *
 import streamlit_scrollable_textbox as stx
+from ner import combine_ner_predictions
 
 #Global variable to get the path
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -137,6 +138,9 @@ def main():
         st.markdown("-------------------------------------------------------------------------")
         st.subheader("Processed Resume")
         stx.scrollableTextbox(processed_result, height=400, fontFamily='monospace', border=True)
+        json = combine_ner_predictions(processed_result)
+        print(json)
+
        
     else:
         st.info("Please upload a resume and enter a job description in the sidebar.")
