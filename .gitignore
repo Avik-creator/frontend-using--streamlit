@@ -1,0 +1,7 @@
+# Local env file
+model1/
+model2/
+
+# Local Cacahe
+__pycache__
+

@@ -3,8 +3,11 @@ import os
 import time  # Simulate delay for the model processing
 from translator_script import process_uploaded_file
 from Parsing import *
+import streamlit_scrollable_textbox as stx
+from ner import combine_ner_predictions
 
 #Global variable to get the path
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 saved_path_actual = ""
 
 def save_uploaded_file(uploaded_file, upload_dir="uploads"):
@@ -27,15 +30,36 @@ def save_uploaded_file(uploaded_file, upload_dir="uploads"):
 
 
 # Mock function to simulate model processing
-def process_with_model(resume_text, job_description):
-    time.sleep(5)  # Simulate a delay for processing
-    probability = 75  # Mock match probability
-    suggestions = [
-        "Add more relevant skills",
-        "Highlight leadership experiences",
-        "Optimize your resume for keywords from the job description",
-    ]
-    return probability, suggestions
+# def process_with_model(resume_text, job_role):
+#     time.sleep(5)  # Simulate a delay for processing
+#     probability = 75  # Mock match probability
+#     suggestions = [
+#         "Add more relevant skills",
+#         "Highlight leadership experiences",
+#         "Optimize your resume for keywords from the job description",
+#     ]
+
+#     if saved_path_actual:
+#         text = main_parse(saved_path_actual)
+#         print(process_uploaded_file(text))
+#         return probability, suggestions, text
+def process_with_model(saved_path_actual, job_role):
+    # Extract and process text
+    if saved_path_actual:
+        resume_text = main_parse(saved_path_actual)
+        processed_result = process_uploaded_file(resume_text)
+        # Simulate delay for processing
+        probability = 75  # Mock match probability
+        suggestions = [
+            "Add more relevant skills",
+            "Highlight leadership experiences",
+            "Optimize your resume for keywords from the job description",
+        ]
+        return probability, suggestions, processed_result
+    else:
+        return None, None, None
+
+    
 
 
 def main():
@@ -50,24 +74,26 @@ def main():
         accept_multiple_files=False
     )
     st.sidebar.title("Job Description")
-    job_description = st.sidebar.text_area(
-        "Enter the Job Description", 
-        height=400, 
-        help="Enter the job description for which you want to predict the job fit"
+    
+    
+
+    job_role = st.sidebar.selectbox(
+        "Enter the Job Role You are targeting For",
+        ["Backend", "Frontend", "Full Stack", "None"],
+        key="jobrole"
     )
 
     if uploaded_file:
-       saved_path = save_uploaded_file(uploaded_file)
-       save_dir = "D:/Coding/Final Year/Jobfit Predictor/Jobfit_Predictor/uploads/"
-       path = saved_path[1].split("\\")
-       saved_path_actual = os.path.join(save_dir,str(path[1]))
-       print(1234)
-
-       print(saved_path_actual)
+        saved_path = save_uploaded_file(uploaded_file)
+        save_dir = os.path.join(PROJECT_ROOT, "uploads")
+        path = saved_path[1].split("/")
+        saved_path_actual = os.path.join(save_dir, str(path[1]))
+        print(1234)
+        print(saved_path_actual)
 
     st.title("Analysis Results")
 
-    if uploaded_file and job_description:
+    if uploaded_file and job_role:
         # Extract text based on file type
         if uploaded_file.type == 'application/pdf':
             resume_text = "Extracted Text from PDF"
@@ -80,12 +106,12 @@ def main():
             return
 
         # Show a spinner while the model processes
-        with st.spinner("Analyzing your resume and job description..."):
-            probability, suggestions = process_with_model(resume_text, job_description)
+        with st.spinner("Analyzing your resume with the Job Role..."):
+            probability, suggestions, processed_result = process_with_model(saved_path_actual, job_role)
 
         # Display the results after processing
         col1, col2 = st.columns(2)
-
+        
         # Probability visualization
         with col1:
             st.subheader("Match Probability")
@@ -108,9 +134,20 @@ def main():
             st.subheader("Resume Improvement Suggestions")
             for i, suggestion in enumerate(suggestions, 1):
                 st.markdown(f"**{i}.** {suggestion}")
+<<<<<<< HEAD
         if saved_path:
             text = main_parse(saved_path_actual)
             st.write(process_uploaded_file(text))
+=======
+        # Insert a line break
+        st.markdown("-------------------------------------------------------------------------")
+        st.subheader("Processed Resume")
+        stx.scrollableTextbox(processed_result, height=400, fontFamily='monospace', border=True)
+        json = combine_ner_predictions(processed_result)
+        print(json)
+
+       
+>>>>>>> c2d9d10acdcf57850703b52ee3eb10b54f8b3b22
     else:
         st.info("Please upload a resume and enter a job description in the sidebar.")
 
