@@ -134,6 +134,11 @@ def main():
             st.subheader("Resume Improvement Suggestions")
             for i, suggestion in enumerate(suggestions, 1):
                 st.markdown(f"**{i}.** {suggestion}")
+<<<<<<< HEAD
+        if saved_path:
+            text = main_parse(saved_path_actual)
+            st.write(process_uploaded_file(text))
+=======
         # Insert a line break
         st.markdown("-------------------------------------------------------------------------")
         st.subheader("Processed Resume")
@@ -142,6 +147,7 @@ def main():
         print(json)
 
        
+>>>>>>> c2d9d10acdcf57850703b52ee3eb10b54f8b3b22
     else:
         st.info("Please upload a resume and enter a job description in the sidebar.")
 
