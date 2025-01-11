@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-40.092407 20.078896 188.938919 133.102905 0.581751 0 person
-=======
 Empty DataFrame
 Columns: [xmin, ymin, xmax, ymax, confidence, class, name]
 Index: []
->>>>>>> c2d9d10acdcf57850703b52ee3eb10b54f8b3b22
