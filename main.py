@@ -1,5 +1,5 @@
 import streamlit as st
-import os
+import os, json
 import time  # Simulate delay for the model processing
 from translator_script import process_uploaded_file
 from Parsing import *
@@ -59,8 +59,32 @@ def process_with_model(saved_path_actual, job_role):
     else:
         return None, None, None
 
-    
+def group_texts_by_label(data):
+    grouped_data = {}
 
+    for item in data:
+        label = item['label']
+        text = item['text']
+        
+        # Initialize an array for the label if it doesn't exist
+        if label not in grouped_data:
+            grouped_data[label] = []
+        # Append the text to the label's array
+        grouped_data[label].append(text)
+
+    return grouped_data
+    
+def display_data_with_streamlit(data):
+    """
+    Displays a dictionary with labels as headers and texts as lists using Streamlit.
+    """
+
+    for label, texts in data.items():
+        st.write(label)  # Display the label
+        container = st.container(border=True)
+        for text in texts:
+            # st.markdown(f"- {text}")  # Display each text as a bulleted list
+            container.write(f"- {text}")
 
 def main():
     st.set_page_config(page_title="Job Fit Predictor", page_icon=":shark:", layout="wide")
@@ -85,9 +109,10 @@ def main():
 
     if uploaded_file:
         saved_path = save_uploaded_file(uploaded_file)
-        save_dir = os.path.join(PROJECT_ROOT, "uploads")
+        save_dir = os.path.join(PROJECT_ROOT)
         path = saved_path[1].split("/")
-        saved_path_actual = os.path.join(save_dir, str(path[1]))
+        print("PATH:", path, "PROJECT_ROOT:", PROJECT_ROOT)
+        saved_path_actual = os.path.join(save_dir, str(path[0]))
         print(1234)
         print(saved_path_actual)
 
@@ -134,14 +159,29 @@ def main():
             st.subheader("Resume Improvement Suggestions")
             for i, suggestion in enumerate(suggestions, 1):
                 st.markdown(f"**{i}.** {suggestion}")
+# <<<<<<< HEAD
+        if saved_path:
+            text = main_parse(saved_path_actual)
+            st.write(process_uploaded_file(text))
+
         # Insert a line break
         st.markdown("-------------------------------------------------------------------------")
         st.subheader("Processed Resume")
         stx.scrollableTextbox(processed_result, height=400, fontFamily='monospace', border=True)
-        json = combine_ner_predictions(processed_result)
-        print(json)
+        json1 = combine_ner_predictions(processed_result)
+        print("json1@1", json1)
+        with open('myfile.json', 'w', encoding ='utf8') as json_file:
+            json.dump(json1, json_file, allow_nan=True)
+
+        st.divider()
+        st.subheader("Labels & their texts")
+        print("PROCESSED RES: ", processed_result)
+        grouped_text_by_label_dict = group_texts_by_label(json1)
+        display_data_with_streamlit(grouped_text_by_label_dict)
+        # stx.scrollableTextbox(grouped_text_by_label_dict, height=100, fontFamily='monospace', border=True)
 
        
+# >>>>>>> c2d9d10acdcf57850703b52ee3eb10b54f8b3b22
     else:
         st.info("Please upload a resume and enter a job description in the sidebar.")
 

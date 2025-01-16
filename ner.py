@@ -3,8 +3,8 @@ import json
 
 # Load the two spaCy models (replace with your actual model paths)
 try:
-    nlp_skills = spacy.load("/teamspace/studios/this_studio/frontend-using--streamlit/model2/model-best")
-    nlp_general = spacy.load("/teamspace/studios/this_studio/frontend-using--streamlit/model1")
+    nlp_skills = spacy.load("model2/model-best")
+    nlp_general = spacy.load("model1")
 except OSError:
     print("Error: Could not load models. Please ensure the paths are correct.")
     exit()
