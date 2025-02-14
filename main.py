@@ -4,7 +4,7 @@ import time  # Simulate delay for the model processing
 from translator_script import process_uploaded_file
 from Parsing import *
 import streamlit_scrollable_textbox as stx
-from ner import combine_ner_predictions
+import modelbit
 
 #Global variable to get the path
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -61,18 +61,18 @@ def process_with_model(saved_path_actual, job_role):
 
 def group_texts_by_label(data):
     grouped_data = {}
-
-    for item in data:
-        label = item['label']
+    data_json = json.loads(data)
+    for item in data_json:
+        # label = item['label']
         text = item['text']
-        
-        # Initialize an array for the label if it doesn't exist
-        if label not in grouped_data:
-            grouped_data[label] = []
-        # Append the text to the label's array
-        grouped_data[label].append(text)
+        print(text)    
+    #     # Initialize an array for the label if it doesn't exist
+    #     if label not in grouped_data:
+    #         grouped_data[label] = []
+    #     # Append the text to the label's array
+    #     grouped_data[label].append(text)
 
-    return grouped_data
+    # return grouped_data
     
 def display_data_with_streamlit(data):
     """
@@ -113,7 +113,7 @@ def main():
         path = saved_path[1].split("/")
         print("PATH:", path, "PROJECT_ROOT:", PROJECT_ROOT)
         saved_path_actual = os.path.join(save_dir, str(path[0]))
-        print(1234)
+        # print(1234)
         print(saved_path_actual)
 
     st.title("Analysis Results")
@@ -168,7 +168,12 @@ def main():
         st.markdown("-------------------------------------------------------------------------")
         st.subheader("Processed Resume")
         stx.scrollableTextbox(processed_result, height=400, fontFamily='monospace', border=True)
-        json1 = combine_ner_predictions(processed_result)
+        json1 = modelbit.get_inference(
+                    region="us-east-1.aws",
+                    workspace="nirvikghosh",
+                    deployment="ner",
+                    data= processed_result
+                )
         print("json1@1", json1)
         with open('myfile.json', 'w', encoding ='utf8') as json_file:
             json.dump(json1, json_file, allow_nan=True)
@@ -176,7 +181,7 @@ def main():
         st.divider()
         st.subheader("Labels & their texts")
         print("PROCESSED RES: ", processed_result)
-        grouped_text_by_label_dict = group_texts_by_label(json1)
+        grouped_text_by_label_dict = group_texts_by_label(json1['data'])
         display_data_with_streamlit(grouped_text_by_label_dict)
         # stx.scrollableTextbox(grouped_text_by_label_dict, height=100, fontFamily='monospace', border=True)
 
