@@ -126,6 +126,8 @@ def display_data_with_streamlit(json_data):
             for text in texts:
                 st.write(f"{text}")
 
+def display_json(json_data):
+    st.json(json_data)
 
 def main():
     st.set_page_config(page_title="Job Fit Predictor", page_icon=":shark:", layout="wide")
@@ -210,8 +212,8 @@ def main():
 
         # Insert a line break
         st.markdown("-------------------------------------------------------------------------")
-        st.subheader("Processed Resume")
-        stx.scrollableTextbox(processed_result, height=400, fontFamily='monospace', border=True)
+        # st.subheader("Processed Resume")
+        # stx.scrollableTextbox(processed_result, height=400, fontFamily='monospace', border=True)
         json1 = modelbit.get_inference(
                     region="us-east-1.aws",
                     workspace="nirvikghosh",
@@ -224,10 +226,14 @@ def main():
 
         st.divider()
         st.subheader("Labels & their texts")
-        print("PROCESSED RES: ", processed_result)
-        grouped_text_by_label_dict = group_texts_by_label(json1['data'])
-        display_data_with_streamlit(json1)
-        # stx.scrollableTextbox(grouped_text_by_label_dict, height=100, fontFamily='monospace', border=True)
+        tab1, tab2, tab3 = st.tabs(["Processed Resume", "Displaying JSON Data in Formatted Way", "Displaying JSON"])
+        with tab1:
+            stx.scrollableTextbox(processed_result, height=400, fontFamily='monospace', border=True)
+        with tab2:
+            display_data_with_streamlit(json1)
+        with tab3:
+            display_json(json1)
+       
 
        
 # >>>>>>> c2d9d10acdcf57850703b52ee3eb10b54f8b3b22
