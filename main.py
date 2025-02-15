@@ -117,7 +117,7 @@ def display_data_with_streamlit(json_data):
     # Display each label as a section with a bordered container
     st.title("Extracted Data")
     for label, texts in grouped_data.items():
-        st.subheader(label.totitle())
+        st.subheader(label.title())
         if label == "Skills".lower():
             with st.container():
                 for text in texts:
