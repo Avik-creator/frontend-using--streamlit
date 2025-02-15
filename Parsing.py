@@ -538,6 +538,7 @@ def extraction_of_text(left_image):
 #Main function
 def main_parse(resume_link):
     # resume_link="D:/Coding/Final Year/Jobfit Predictor/Jobfit_Predictor/uploads/Test.jpg"
+    print(resume_link)
     img = pdf_to_image(resume_link)
     cpd_path = candidate_pic_detection(img)
     rcp_path = removing_candidate_pic(cpd_path)

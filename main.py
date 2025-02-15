@@ -20,6 +20,9 @@ def save_uploaded_file(uploaded_file, upload_dir="uploads"):
         file_path = os.path.join(upload_dir, uploaded_file.name)
         with open(file_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
+        
+        print("FILE PATH:", file_path)
+        print("UPLOAD DIR:", upload_dir)
 
         # Return the directory and file path
         return upload_dir, file_path
@@ -60,19 +63,24 @@ def process_with_model(saved_path_actual, job_role):
         return None, None, None
 
 def group_texts_by_label(data):
-    grouped_data = {}
-    data_json = json.loads(data)
-    for item in data_json:
-        # label = item['label']
-        text = item['text']
-        print(text)    
-    #     # Initialize an array for the label if it doesn't exist
-    #     if label not in grouped_data:
-    #         grouped_data[label] = []
-    #     # Append the text to the label's array
-    #     grouped_data[label].append(text)
+    if isinstance(data, str):
+        data = json.loads(data)
+    
 
-    # return grouped_data
+
+
+    grouped_data = {}
+    for item in data:
+        label = item.get('label')
+        text = item.get('text')
+        print(text)    
+        # Initialize an array for the label if it doesn't exist
+        if label not in grouped_data:
+            grouped_data[label] = []
+        # Append the text to the label's array
+        grouped_data[label].append(text)
+
+    return grouped_data
     
 def display_data_with_streamlit(data):
     """
@@ -109,10 +117,14 @@ def main():
 
     if uploaded_file:
         saved_path = save_uploaded_file(uploaded_file)
+        print("SAVED PATH:", saved_path)
         save_dir = os.path.join(PROJECT_ROOT)
+        print("SAVE DIR:", save_dir)
         path = saved_path[1].split("/")
+
         print("PATH:", path, "PROJECT_ROOT:", PROJECT_ROOT)
-        saved_path_actual = os.path.join(save_dir, str(path[0]))
+        saved_path_actual = os.path.join(save_dir, str(path[0]), str(path[1]))
+
         # print(1234)
         print(saved_path_actual)
 
@@ -162,7 +174,6 @@ def main():
 # <<<<<<< HEAD
         if saved_path:
             text = main_parse(saved_path_actual)
-            st.write(process_uploaded_file(text))
 
         # Insert a line break
         st.markdown("-------------------------------------------------------------------------")
