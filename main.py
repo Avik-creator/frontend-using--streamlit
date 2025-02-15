@@ -5,6 +5,7 @@ from translator_script import process_uploaded_file
 from Parsing import *
 import streamlit_scrollable_textbox as stx
 import modelbit
+from collections import defaultdict
 
 #Global variable to get the path
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -82,17 +83,49 @@ def group_texts_by_label(data):
 
     return grouped_data
     
-def display_data_with_streamlit(data):
-    """
-    Displays a dictionary with labels as headers and texts as lists using Streamlit.
-    """
+# def display_data_with_streamlit(data):
+#     """
+#     Displays a dictionary with labels as headers and texts as lists using Streamlit.
+#     """
 
-    for label, texts in data.items():
-        st.write(label)  # Display the label
-        container = st.container(border=True)
-        for text in texts:
-            # st.markdown(f"- {text}")  # Display each text as a bulleted list
-            container.write(f"- {text}")
+#     # for label, texts in data.items():
+#     #     st.write(label)  # Display the label
+#     #     container = st.container(border=True)
+#     #     for text in texts:
+#     #         # st.markdown(f"- {text}")  # Display each text as a bulleted list
+#     #         container.write(f"- {text}")
+#     st.json(data)
+
+def display_data_with_streamlit(json_data):
+    """
+    Displays structured JSON data with labels as headers and grouped texts using Streamlit.
+    """
+    
+    # Group data by label
+    grouped_data = defaultdict(list)
+    for item in json_data['data']:
+        label = item['label']
+        text = item['text']
+        
+        # Check if label contains "SKILL:"
+        if "SKILL:" in label:
+            skill_name = label.replace("SKILL: ", "").strip()
+            grouped_data["Skills"].append(f"{skill_name}")
+        else:
+            grouped_data[label].append(text)
+    
+    # Display each label as a section with a bordered container
+    st.title("Extracted Data")
+    for label, texts in grouped_data.items():
+        st.subheader(label)
+        if label == "Skills":
+            with st.container():
+                for text in texts:
+                    st.write(text)
+        else:
+            for text in texts:
+                st.write(f"{text}")
+
 
 def main():
     st.set_page_config(page_title="Job Fit Predictor", page_icon=":shark:", layout="wide")
@@ -193,7 +226,7 @@ def main():
         st.subheader("Labels & their texts")
         print("PROCESSED RES: ", processed_result)
         grouped_text_by_label_dict = group_texts_by_label(json1['data'])
-        display_data_with_streamlit(grouped_text_by_label_dict)
+        display_data_with_streamlit(json1)
         # stx.scrollableTextbox(grouped_text_by_label_dict, height=100, fontFamily='monospace', border=True)
 
        
