@@ -22,8 +22,6 @@ def save_uploaded_file(uploaded_file, upload_dir="uploads"):
         with open(file_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
         
-        print("FILE PATH:", file_path)
-        print("UPLOAD DIR:", upload_dir)
 
         # Return the directory and file path
         return upload_dir, file_path
@@ -33,20 +31,6 @@ def save_uploaded_file(uploaded_file, upload_dir="uploads"):
         return None, None
 
 
-# Mock function to simulate model processing
-# def process_with_model(resume_text, job_role):
-#     time.sleep(5)  # Simulate a delay for processing
-#     probability = 75  # Mock match probability
-#     suggestions = [
-#         "Add more relevant skills",
-#         "Highlight leadership experiences",
-#         "Optimize your resume for keywords from the job description",
-#     ]
-
-#     if saved_path_actual:
-#         text = main_parse(saved_path_actual)
-#         print(process_uploaded_file(text))
-#         return probability, suggestions, text
 def process_with_model(saved_path_actual, job_role):
     # Extract and process text
     if saved_path_actual:
@@ -67,14 +51,11 @@ def group_texts_by_label(data):
     if isinstance(data, str):
         data = json.loads(data)
     
-
-
-
     grouped_data = {}
     for item in data:
         label = item.get('label')
         text = item.get('text')
-        print(text)    
+
         # Initialize an array for the label if it doesn't exist
         if label not in grouped_data:
             grouped_data[label] = []
@@ -83,18 +64,7 @@ def group_texts_by_label(data):
 
     return grouped_data
     
-# def display_data_with_streamlit(data):
-#     """
-#     Displays a dictionary with labels as headers and texts as lists using Streamlit.
-#     """
 
-#     # for label, texts in data.items():
-#     #     st.write(label)  # Display the label
-#     #     container = st.container(border=True)
-#     #     for text in texts:
-#     #         # st.markdown(f"- {text}")  # Display each text as a bulleted list
-#     #         container.write(f"- {text}")
-#     st.json(data)
 
 def display_data_with_streamlit(json_data):
     """
@@ -152,16 +122,12 @@ def main():
 
     if uploaded_file:
         saved_path = save_uploaded_file(uploaded_file)
-        print("SAVED PATH:", saved_path)
+
         save_dir = os.path.join(PROJECT_ROOT)
-        print("SAVE DIR:", save_dir)
+
         path = saved_path[1].split("/")
 
-        print("PATH:", path, "PROJECT_ROOT:", PROJECT_ROOT)
         saved_path_actual = os.path.join(save_dir, str(path[0]), str(path[1]))
-
-        # print(1234)
-        print(saved_path_actual)
 
     st.title("Analysis Results")
 
@@ -220,7 +186,6 @@ def main():
                     deployment="ner",
                     data= processed_result
                 )
-        print("json1@1", json1)
         with open('myfile.json', 'w', encoding ='utf8') as json_file:
             json.dump(json1, json_file, allow_nan=True)
 
