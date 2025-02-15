@@ -110,15 +110,15 @@ def display_data_with_streamlit(json_data):
         # Check if label contains "SKILL:"
         if "SKILL:" in label:
             skill_name = label.replace("SKILL: ", "").strip()
-            grouped_data["Skills"].append(f"{skill_name}")
+            grouped_data["Skills".lower()].append(f"{skill_name}")
         else:
-            grouped_data[label].append(text)
+            grouped_data[label.lower()].append(text)
     
     # Display each label as a section with a bordered container
     st.title("Extracted Data")
     for label, texts in grouped_data.items():
-        st.subheader(label)
-        if label == "Skills":
+        st.subheader(label.totitle())
+        if label == "Skills".lower():
             with st.container():
                 for text in texts:
                     st.write(text)
