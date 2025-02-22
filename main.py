@@ -3,6 +3,7 @@ import os, json
 import time  # Simulate delay for the model processing
 from translator_script import process_uploaded_file
 from Parsing import *
+from Final_model import *
 import streamlit_scrollable_textbox as stx
 import modelbit
 from collections import defaultdict
@@ -124,9 +125,8 @@ def main():
         saved_path = save_uploaded_file(uploaded_file)
 
         save_dir = os.path.join(PROJECT_ROOT)
-
         path = saved_path[1].split("/")
-
+        path = path[0].split("\\") #Applicable only for Rudra's computer
         saved_path_actual = os.path.join(save_dir, str(path[0]), str(path[1]))
 
     st.title("Analysis Results")
@@ -173,8 +173,8 @@ def main():
             for i, suggestion in enumerate(suggestions, 1):
                 st.markdown(f"**{i}.** {suggestion}")
 # <<<<<<< HEAD
-        if saved_path:
-            text = main_parse(saved_path_actual)
+        # if saved_path:
+        #     text = main_parse(saved_path_actual)
 
         # Insert a line break
         st.markdown("-------------------------------------------------------------------------")
@@ -199,7 +199,8 @@ def main():
         with tab3:
             display_json(json1)
        
-
+        #Final model
+        final_main(json1)
        
 # >>>>>>> c2d9d10acdcf57850703b52ee3eb10b54f8b3b22
     else:
