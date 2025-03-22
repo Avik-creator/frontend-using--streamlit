@@ -223,6 +223,11 @@ def final_main(json_data):
   
   job_req_edu_list = job_req_edu.split(" ")
   print("Is eligible",is_eligible(cand_edu_deg, job_req_edu_list)) 
+  if(is_eligible(cand_edu_deg, job_req_edu_list)):
+    edu_score  = 100
+  else:
+    edu_score = 0
+    
   if state == 0:
      print("Experience level cannot be identified!")
      skill_contri = 0.5
@@ -244,7 +249,7 @@ def final_main(json_data):
      exp_contri = 0.55
      edu_contri = 0.05 
   
-  final_score = (skill_contri * skill_score_per)+(exp_contri * exp_score)+(edu_contri * edu_contri)
+  final_score = (skill_contri * skill_score_per)+(exp_contri * exp_score)+(edu_contri * edu_score)
   print("The final score is: ",final_score)
   return final_score
 
