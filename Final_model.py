@@ -209,6 +209,7 @@ def final_main(json_data):
       cand_exp.append(text)
     elif "EDUCATION DEGREE" in label:
       cand_edu_deg.append(text)
+      
   #From API current job market
   job_req_skill= ["Python", "SQL", "Data Analysis", "Machine Learning","CSS","UI"] 
   job_req_exp = "10 years"
@@ -228,7 +229,7 @@ def final_main(json_data):
   else:
     edu_score = 0
     
-  if state == 0:
+  if state == 0:#invalid case
      print("Experience level cannot be identified!")
      skill_contri = 0.5
      exp_contri = 0.4
