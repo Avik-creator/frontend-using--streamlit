@@ -37,16 +37,32 @@ def process_with_model(saved_path_actual, job_role):
     if saved_path_actual:
         resume_text = main_parse(saved_path_actual)
         processed_result = process_uploaded_file(resume_text)
-        # Simulate delay for processing
-        probability = 75  # Mock match probability
+        
+        # Process with modelbit to get JSON data
+        json_data = modelbit.get_inference(
+            region="us-east-1.aws",
+            workspace="nirvikghosh",
+            deployment="ner",
+            data=processed_result
+        )
+        
+        # Save JSON data to file
+        with open('myfile.json', 'w', encoding='utf8') as json_file:
+            json.dump(json_data, json_file, allow_nan=True)
+        
+        # Get the actual score from final_main
+        final_score = final_main(json_data)
+        
+        # Suggestions (can be improved later to be dynamic based on the score)
         suggestions = [
             "Add more relevant skills",
             "Highlight leadership experiences",
             "Optimize your resume for keywords from the job description",
         ]
-        return probability, suggestions, processed_result
+        
+        return final_score, suggestions, processed_result, json_data
     else:
-        return None, None, None
+        return None, None, None, None
 
 def group_texts_by_label(data):
     if isinstance(data, str):
@@ -115,9 +131,16 @@ def main():
     
     
 
-    job_role = st.sidebar.selectbox(
-        "Enter the Job Role You are targeting For",
-        ["Backend", "Frontend", "Full Stack", "None"],
+    # job_role = st.sidebar.selectbox(
+    #     "Enter the Job Role You are targeting For",
+    #     ["Backend", "Frontend", "Full Stack", "None"],
+    #     key="jobrole"
+    # )
+
+    job_role = st.sidebar.text_input(
+        "Enter the Job Role posted in the Job Description",
+        help="Enter the job role you are targeting for. e.g. Data Scientist, Software Engineer, etc.",
+        placeholder="e.g. We are looking for a Data Scientist with 5+ years of experience in Python and SQL",
         key="jobrole"
     )
 
@@ -126,7 +149,7 @@ def main():
 
         save_dir = os.path.join(PROJECT_ROOT)
         path = saved_path[1].split("/")
-        path = path[0].split("\\") #Applicable only for Rudra's computer
+        # path = path[0].split("\\") #Applicable only for Rudra's computer
         saved_path_actual = os.path.join(save_dir, str(path[0]), str(path[1]))
 
     st.title("Analysis Results")
@@ -145,7 +168,7 @@ def main():
 
         # Show a spinner while the model processes
         with st.spinner("Analyzing your resume with the Job Role..."):
-            probability, suggestions, processed_result = process_with_model(saved_path_actual, job_role)
+            probability, suggestions, processed_result, json_data = process_with_model(saved_path_actual, job_role)
 
         # Display the results after processing
         col1, col2 = st.columns(2)
@@ -161,7 +184,7 @@ def main():
                             stroke-dasharray="880" stroke-dashoffset="{880 * (1 - probability/100)}"
                             style="transition: stroke-dashoffset 1s ease-in-out;"/>
                     <text x="50%" y="50%" text-anchor="middle" dy=".3em" font-size="50" font-weight="bold" fill="#ffffff">
-                        {int(probability)}%
+                        {round(probability)}%
                     </text>
                 </svg>
             </div>
@@ -172,37 +195,20 @@ def main():
             st.subheader("Resume Improvement Suggestions")
             for i, suggestion in enumerate(suggestions, 1):
                 st.markdown(f"**{i}.** {suggestion}")
-# <<<<<<< HEAD
-        # if saved_path:
-        #     text = main_parse(saved_path_actual)
 
         # Insert a line break
         st.markdown("-------------------------------------------------------------------------")
-        # st.subheader("Processed Resume")
-        # stx.scrollableTextbox(processed_result, height=400, fontFamily='monospace', border=True)
-        json1 = modelbit.get_inference(
-                    region="us-east-1.aws",
-                    workspace="nirvikghosh",
-                    deployment="ner",
-                    data= processed_result
-                )
-        with open('myfile.json', 'w', encoding ='utf8') as json_file:
-            json.dump(json1, json_file, allow_nan=True)
-
+        
         st.divider()
         st.subheader("Labels & their texts")
         tab1, tab2, tab3 = st.tabs(["Processed Resume", "Displaying JSON Data in Formatted Way", "Displaying JSON"])
         with tab1:
             stx.scrollableTextbox(processed_result, height=400, fontFamily='monospace', border=True)
         with tab2:
-            display_data_with_streamlit(json1)
+            display_data_with_streamlit(json_data)
         with tab3:
-            display_json(json1)
+            display_json(json_data)
        
-        #Final model
-        final_main(json1)
-       
-# >>>>>>> c2d9d10acdcf57850703b52ee3eb10b54f8b3b22
     else:
         st.info("Please upload a resume and enter a job description in the sidebar.")
 
