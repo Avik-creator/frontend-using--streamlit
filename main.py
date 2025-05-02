@@ -32,7 +32,7 @@ def save_uploaded_file(uploaded_file, upload_dir="uploads"):
         return None, None
 
 
-def process_with_model(saved_path_actual, job_role):
+def process_with_model(saved_path_actual, job_descrip):
     # Extract and process text
     if saved_path_actual:
         resume_text = main_parse(saved_path_actual)
@@ -50,8 +50,16 @@ def process_with_model(saved_path_actual, job_role):
         with open('myfile.json', 'w', encoding='utf8') as json_file:
             json.dump(json_data, json_file, allow_nan=True)
         
+        job_api_output = modelbit.get_inference(
+            region = "us-east-1.aws",
+            workspace="nirvikghosh",
+            deployment = "jobapi",
+            data = job_descrip
+        )
+        # print(job_api_output)
+        
         # Get the actual score from final_main
-        final_score = final_main(json_data)
+        final_score = final_main(json_data,job_api_output)
         
         # Suggestions (can be improved later to be dynamic based on the score)
         suggestions = [
