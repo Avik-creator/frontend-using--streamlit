@@ -87,6 +87,24 @@ def convert_to_months(duration_str):
   total_months = (years * 12) + months
   return total_months
 
+def extract_min_years(duration_str):
+    """
+    Extracts the maximum year from a range string like '4–5 years' or '2-3.5 years'
+    and returns it as a string like '5 years'.
+    """
+    # Normalize dash types
+    normalized = re.sub(r"[–—−]", "-", duration_str)
+    
+    # Extract all numbers (including decimal)
+    numbers = re.findall(r'\d+(?:\.\d+)?', normalized)
+    
+    if numbers:
+        # Convert to float to support decimal ranges, round up to the nearest int
+        min_year = min(map(float, numbers))
+        return f"{int(round(min_year))} years"
+    else:
+        return duration_str
+
 def experience_score(job_req_exp,cand_exp,can_edu_tenure):
   # Calculate the number of months
   state = 0
@@ -106,7 +124,10 @@ def experience_score(job_req_exp,cand_exp,can_edu_tenure):
     start_date,end_date = parse_date_range(c)
     months = calculate_duration(start_date,end_date)
     total_exp_in_months += months
-  job_req_exp_months = convert_to_months(job_req_exp)
+  
+  job_req_exp_parse = extract_min_years(job_req_exp)
+  print("Minimum Required experience for the job : ",job_req_exp_parse)
+  job_req_exp_months = convert_to_months(job_req_exp_parse)
   
   if state == 0:
      if total_exp_in_months <= 12:state = 1
@@ -193,7 +214,10 @@ def is_eligible(person_degrees, eligible_degrees):
         
     return False  # Not Eligible
 
-def final_main(json_data):
+def clean(skill):
+    return skill.lower().replace('(', '').replace(')', '').replace('must', '').strip()
+
+def final_main(json_data,job_api_output):
   can_skills = []
   can_edu_tenure = None
   cand_exp = []
@@ -201,7 +225,7 @@ def final_main(json_data):
   for item in json_data['data']: #Applicant
     label = item['label']
     text = item['text']
-    if "SKILL:" in label:
+    if "SKILL" in label or "SKILLs" in label or "SKILL:" in label:
       can_skills.append(text) 
     elif "EDUCATION TENURE" in label:
         can_edu_tenure = text
@@ -210,27 +234,51 @@ def final_main(json_data):
     elif "EDUCATION DEGREE" in label:
       cand_edu_deg.append(text)
       
-  #From API current job market
-  job_req_skill= ["Python", "SQL", "Data Analysis", "Machine Learning","CSS","UI"] 
-  job_req_exp = "10 years"
-  job_req_edu = "Bachelor in IT"
-
-
-  skill_score_per = skill_score(can_skills,job_req_skill)
+  # #From API current job market
+  # job_req_skill= ["Python", "SQL", "Data Analysis", "Machine Learning","CSS","UI"] 
+  #job_req_exp = "10 years"
+  
+  experience_data = job_api_output.get("data",{}).get('EXPERIENCE_WITH_SKILLS',{})
+  # print(experience_data)
+  skill_score_per_each = 0
+  skill_score_per = 0
+  if len(experience_data)!= 0 :
+    for key,value in experience_data.items():
+      skill_score_per_each = skill_score(can_skills,value)
+      if skill_score_per < skill_score_per_each:
+        skill_score_per = skill_score_per_each
+        job_req_exp = key 
+    
+  if len(experience_data) == 0 or skill_score_per == 0:
+    job_req_skill = job_api_output.get("data",{}).get('SKILLS',[])
+    
+    if len(job_req_skill) == 0:
+      job_req_skill = ["Communication", "Team spirit","Responsible"]
+    job_req_exp = "0 years"
+    skill_score_per = skill_score(can_skills,job_req_skill)
+  #   print(job_req_skill)
+  # print(can_skills)
+  print("Required job experience for the job: ",job_req_exp)
   print(f"SKill Score: {skill_score_per}")
 
   exp_score,state = experience_score(job_req_exp,cand_exp,can_edu_tenure)
   print("Experience is matched by: ",exp_score)
   
-  job_req_edu_list = job_req_edu.split(" ")
-  print("Is eligible",is_eligible(cand_edu_deg, job_req_edu_list)) 
-  if(is_eligible(cand_edu_deg, job_req_edu_list)):
-    edu_score  = 100
+  job_req_edu = job_api_output.get("data",{}).get("DEGREE")
+  if len(job_req_edu) == 0:
+    edu_score = 100
+    print("NO degree Found! Considering eligible for all Degrees")
   else:
-    edu_score = 0
-    
+    job_req_edu_list = job_req_edu.split(" ")
+    print("Is eligible",is_eligible(cand_edu_deg, job_req_edu_list)) 
+    if(is_eligible(cand_edu_deg, job_req_edu_list)):
+      edu_score  = 100
+    else:
+      edu_score = 0
+  print("Education score: ",edu_score) 
+  print("The experience level of the candidate is:")
   if state == 0:#invalid case
-     print("Experience level cannot be identified!")
+     print("Not identified!")
      skill_contri = 0.5
      exp_contri = 0.4
      edu_contri = 0.1 
