@@ -157,7 +157,7 @@ def main():
 
         save_dir = os.path.join(PROJECT_ROOT)
         path = saved_path[1].split("/")
-        # path = path[0].split("\\") #Applicable only for Rudra's computer
+        path = path[0].split("\\") #Applicable only for Rudra's computer
         saved_path_actual = os.path.join(save_dir, str(path[0]), str(path[1]))
 
     st.title("Analysis Results")

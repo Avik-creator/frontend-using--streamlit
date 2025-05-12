@@ -121,14 +121,16 @@ def experience_score(job_req_exp,cand_exp,can_edu_tenure):
     
   total_exp_in_months = 0
   for c in cand_exp:
+    print(c)#####
     start_date,end_date = parse_date_range(c)
     months = calculate_duration(start_date,end_date)
+    print(start_date,end_date,months)
     total_exp_in_months += months
-  
+  print("Candidate experience is of: ",total_exp_in_months,"months")
   job_req_exp_parse = extract_min_years(job_req_exp)
   print("Minimum Required experience for the job : ",job_req_exp_parse)
   job_req_exp_months = convert_to_months(job_req_exp_parse)
-  
+  print("Minimum required experience of job in months: ",job_req_exp_months)
   if state == 0:
      if total_exp_in_months <= 12:state = 1
      elif total_exp_in_months<= 60 and total_exp_in_months>12 : state = 2
@@ -237,27 +239,37 @@ def final_main(json_data,job_api_output):
   # #From API current job market
   # job_req_skill= ["Python", "SQL", "Data Analysis", "Machine Learning","CSS","UI"] 
   #job_req_exp = "10 years"
-  
+ ################################ 
   experience_data = job_api_output.get("data",{}).get('EXPERIENCE_WITH_SKILLS',{})
-  # print(experience_data)
   skill_score_per_each = 0
   skill_score_per = 0
-  if len(experience_data)!= 0 :
-    for key,value in experience_data.items():
-      skill_score_per_each = skill_score(can_skills,value)
-      if skill_score_per < skill_score_per_each:
-        skill_score_per = skill_score_per_each
-        job_req_exp = key 
-    
-  if len(experience_data) == 0 or skill_score_per == 0:
-    job_req_skill = job_api_output.get("data",{}).get('SKILLS',[])
-    
-    if len(job_req_skill) == 0:
-      job_req_skill = ["Communication", "Team spirit","Responsible"]
-    job_req_exp = "0 years"
-    skill_score_per = skill_score(can_skills,job_req_skill)
-  #   print(job_req_skill)
-  # print(can_skills)
+  job_req_exp = ""  # Ensure this is set early
+
+  if experience_data:  # Safe truthy check
+        for key, value in experience_data.items():
+            skill_score_per_each = skill_score(can_skills, value)
+            print("Score for", key, ":", skill_score_per_each)
+            if skill_score_per < skill_score_per_each:
+                skill_score_per = skill_score_per_each
+                job_req_exp = str(key)  # Ensure job_req_exp is always a string
+        if len(job_req_exp) == 0:
+          job_req_exp = str(key)
+          print(" EXPERIENCE_WITH_SKILLS data found but not matched!!")
+        job_req_skill = job_api_output.get("data", {}).get('SKILLS', [])
+        if not job_req_skill:
+            job_req_skill = ["Communication", "Team spirit", "Responsible"]
+        skill_score_per = skill_score(can_skills, job_req_skill)
+                
+  else:
+        print("No EXPERIENCE_WITH_SKILLS data found.")
+        job_req_skill = job_api_output.get("data", {}).get('SKILLS', [])
+        if not job_req_skill:
+            job_req_skill = ["Communication", "Team spirit", "Responsible"]
+        skill_score_per = skill_score(can_skills, job_req_skill)
+        print("Fallback skill list used:", job_req_skill)
+        job_req_exp = "0 years"  # Explicitly ensure it's set here too
+
+    # print("Required job experience for the job: ", job_req_exp)
   print("Required job experience for the job: ",job_req_exp)
   print(f"SKill Score: {skill_score_per}")
 
@@ -265,11 +277,15 @@ def final_main(json_data,job_api_output):
   print("Experience is matched by: ",exp_score)
   
   job_req_edu = job_api_output.get("data",{}).get("DEGREE")
+  print(job_req_edu)
   if len(job_req_edu) == 0:
     edu_score = 100
     print("NO degree Found! Considering eligible for all Degrees")
   else:
-    job_req_edu_list = job_req_edu.split(" ")
+    try:
+      job_req_edu_list = job_req_edu.split(" ")
+    except:
+      job_req_edu_list = job_req_edu  
     print("Is eligible",is_eligible(cand_edu_deg, job_req_edu_list)) 
     if(is_eligible(cand_edu_deg, job_req_edu_list)):
       edu_score  = 100
