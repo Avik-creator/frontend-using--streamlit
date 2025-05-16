@@ -1,11 +1,12 @@
 from datetime import date,datetime
 import re
 import json
+from ocr_error_solution import OCRDateParser
 
 def skill_score(can_skills, job_req_skill):
-
+  unique_can_skills = list(set(can_skills))
   sum = 0
-  for c in can_skills:
+  for c in unique_can_skills:
     for j in job_req_skill:
        if c == j :
           sum += 1
@@ -38,36 +39,65 @@ def calculate_duration(start_date,end_date): #Duration calculation in months
   return months + 1
 
 def month_from_name(date_pass):
-    dt = re.split(r"[ ./]", date_pass)
-    if len(dt) == 1:
-        d = date(int(date_pass),1,1)
-    elif len(dt) == 2:
-        try:
-            int(dt[1]) and int(dt[0])
-            if (int(dt[1])) > 12:
-                d = date(int(dt[1][:4]),int(dt[0][:3]),1)
-            else:
-                d = date(int(dt[0][:4]),int(dt[1][:3]),1)
-        except:
-            try:
-                int(dt[1])
-                try:
-                    # Full month name
-                    m = datetime.strptime(dt[0], "%B").month
-                    d = date(int(dt[1][:4]),m,1)
-                except:
-                    m = datetime.strptime(dt[0][:3], "%b").month  
-                    d = date(int(dt[1][:4]),m,1)
-            except:
-                int(dt[0])   
-                try:
-                    m = datetime.strptime(dt[1], "%B").month# Full month name
-                    d = date(int(dt[0][:4]),m,1)
-                except:
-                    m = datetime.strptime(dt[1][:3], "%b").month
-                    d = date(int(dt[0][:4]),m,1)
+    date_parse_datetime = OCRDateParser.parse_date_string(date_pass)
+    print(date_parse_datetime[1])
+    return(date_parse_datetime[1])
+    #date_parse = ' '.join(date_parse_tuple)
+    
+#       File "D:\Coding\Final Year\Jobfit Predictor\Jobfit_Predictor\main.py", line 62, in process_with_model
+#     final_score = final_main(json_data,job_api_output)
+#                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#   File "D:\Coding\Final Year\Jobfit Predictor\Jobfit_Predictor\Final_model.py", line 283, in final_main
+#     exp_score,state = experience_score(job_req_exp,cand_exp,can_edu_tenure)
+#                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#   File "D:\Coding\Final Year\Jobfit Predictor\Jobfit_Predictor\Final_model.py", line 132, in experience_score
+#     start_date,end_date = parse_date_range(c)
+#                           ^^^^^^^^^^^^^^^^^^^
+#   File "D:\Coding\Final Year\Jobfit Predictor\Jobfit_Predictor\Final_model.py", line 22, in parse_date_range
+#     start_date = month_from_name(start_str)
+#                  ^^^^^^^^^^^^^^^^^^^^^^^^^^
+#   File "D:\Coding\Final Year\Jobfit Predictor\Jobfit_Predictor\Final_model.py", line 43, in month_from_name
+#     date_parse = ' '.join(date_parse_tuple)
+#                  ^^^^^^^^^^^^^^^^^^^^^^^^^^
+# TypeError: sequence item 1: expected str instance, datetime.date found
 
-    return d
+###############################################
+    
+    # dt = re.split(r"[ ./]", date_parse)
+    
+    # if len(dt) == 1:
+    #     d = date(int(date_pass),1,1)
+    # elif len(dt) == 2:
+    #   print(dt)
+    #   try:
+    #         int(dt[1]) and int(dt[0])    
+    #   except:
+    #       try:
+    #             int(dt[1])
+    #       except:
+    #         int(dt[0])   
+    #         try:
+    #           m = datetime.strptime(dt[1], "%B").month# Full month name        
+    #         except:
+    #             m = datetime.strptime(dt[1][:3], "%b").month
+    #             d = date(int(dt[0][:4]),m,1)
+    #         else:
+    #           d = date(int(dt[0][:4]),m,1)
+    #       else:
+    #         try:
+    #                 # Full month name
+    #                 m = datetime.strptime(dt[0], "%B").month
+    #                 d = date(int(dt[1][:4]),m,1)
+    #         except:
+    #                 m = datetime.strptime(dt[0][:3], "%b").month  
+    #                 d = date(int(dt[1][:4]),m,1)
+    #   else:
+    #     if (int(dt[1])) > 12:
+    #       d = date(int(dt[1][:4]),int(dt[0][:3]),1)
+    #     else:
+    #       d = date(int(dt[0][:4]),int(dt[1][:3]),1)
+    
+   
 
 def convert_to_months(duration_str):
   """Convert a duration string like '10 years 5 months' to total months."""
@@ -192,7 +222,7 @@ def is_eligible(person_degrees, eligible_degrees):
     person_degrees_normalized = {normalize_degree(degree) for degree in person_degrees}
     eligible_degrees_normalized = {normalize_degree(degree) for degree in eligible_degrees}
 
-    print(person_degrees_normalized, eligible_degrees_normalized)
+    print("person degree: ",person_degrees_normalized,"required education:",eligible_degrees_normalized)
 
     # Check for direct match ...
     if not person_degrees_normalized.isdisjoint(eligible_degrees_normalized):
