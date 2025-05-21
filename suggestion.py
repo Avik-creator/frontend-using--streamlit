@@ -69,11 +69,11 @@ Give 4 personalized suggestions in JSON format. Example:
     return parsed_result
    
 
-resume = {'skills': ['Python', 'ReactJS'], 'experience_years': 1, 'education': ['B.Tech IT']}
-job = {'skills': ['Python', 'AWS'], 'required_experience': 3, 'education': 'M.Tech CSE'}
+# resume = {'skills': ['Python', 'ReactJS'], 'experience_years': 1, 'education': ['B.Tech IT']}
+# job = {'skills': ['Python', 'AWS'], 'required_experience': 3, 'education': 'M.Tech CSE'}
 
-result = generate_resume_suggestions(resume, job)
-print(result)
+# result = generate_resume_suggestions(resume, job)
+# print(result)
 
 
 # Install transformers from source - only needed for versions <= v4.34
@@ -83,13 +83,13 @@ print(result)
 
 
 # We use the tokenizer's chat template to format each message - see https://huggingface.co/docs/transformers/main/en/chat_templating
-messages = [
-    {
-        "role": "system",
-        "content": "You are a friendly chatbot who always responds in the style of a pirate",
-    },
-    {"role": "user", "content": "How many helicopters can a human eat in one sitting?"},
-]
+# messages = [
+#     {
+#         "role": "system",
+#         "content": "You are a friendly chatbot who always responds in the style of a pirate",
+#     },
+#     {"role": "user", "content": "How many helicopters can a human eat in one sitting?"},
+# ]
 
 # <|system|>
 # You are a friendly chatbot who always responds in the style of a pirate.</s>

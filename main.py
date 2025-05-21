@@ -474,17 +474,17 @@ def process_with_model(saved_path_actual, job_descrip):
     # Phase 5: Final Scoring
     progress_text.text("Phase 5: Calculating Final Score")
     progress_placeholder.progress(100)
-    final_score = final_main(json_data, job_api_output)
+    final_score,suggestions = final_main(json_data, job_api_output)
     
     # Clear progress placeholders
     progress_placeholder.empty()
     progress_text.empty()
     
-    suggestions = [
-        "Add more relevant skills",
-        "Highlight leadership experiences",
-        "Optimize your resume for keywords from the job description",
-    ]
+    # suggestions = [
+    #     "Add more relevant skills",
+    #     "Highlight leadership experiences",
+    #     "Optimize your resume for keywords from the job description",
+    # ]
     
     return final_score, suggestions, processed_result, json_data
 
@@ -602,12 +602,25 @@ def main():
                 """, unsafe_allow_html=True)
             
             with col2:
-                st.subheader("💡 Improvement Suggestions")
-                suggestion_html = '<ul class="suggestions-list">'
-                for i, suggestion in enumerate(suggestions, 1):
-                    suggestion_html += f"<li><strong>{i}.</strong> {suggestion}</li>"
-                suggestion_html += "</ul>"
-                st.markdown(suggestion_html, unsafe_allow_html=True)
+                st.subheader("Resume Improvement Suggestions")
+
+                # Mapping keys to user-friendly section headers
+                section_headers = {
+                    'skills_to_learn': "🧠 Skills to Learn",
+                    'experience_gaps': "📉 Experience Gaps",
+                    'education_advice': "🎓 Education Advice",
+                    'resume_tips': "📄 Resume Tips"
+                }
+
+                for key, header in section_headers.items():
+                    if suggestions.get(key):
+                        st.markdown(f"### {header}")
+                        for suggestion in suggestions[key]:
+                            # Split into individual bullet points if newline-separated
+                            points = suggestion.strip().split('\n- ')
+                            for point in points:
+                                if point:
+                                    st.markdown(f"- {point.strip()}")
             
             st.markdown('</div>', unsafe_allow_html=True)
             

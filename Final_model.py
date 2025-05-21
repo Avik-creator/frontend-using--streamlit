@@ -2,6 +2,7 @@ from datetime import date,datetime
 import re
 import json
 from ocr_error_solution import OCRDateParser
+import suggestion
 
 def skill_score(can_skills, job_req_skill):
   unique_can_skills = list(set(can_skills))
@@ -167,10 +168,10 @@ def experience_score(job_req_exp,cand_exp,can_edu_tenure):
      else:state = 3
   if job_req_exp_months <= total_exp_in_months:
      print("Eligible for the role")
-     return (100,state)
+     return (100,state,total_exp_in_months)
   else:
      print("Not eligible for the job, still required : " ,(job_req_exp_months - total_exp_in_months),"months of experience")
-     return ((total_exp_in_months/job_req_exp_months)*100,state)
+     return ((total_exp_in_months/job_req_exp_months)*100,state,total_exp_in_months)
 
 ABBREVIATIONS = {
     "Bachelor of Science": "B.Sc",
@@ -303,7 +304,7 @@ def final_main(json_data,job_api_output):
   print("Required job experience for the job: ",job_req_exp)
   print(f"SKill Score: {skill_score_per}")
 
-  exp_score,state = experience_score(job_req_exp,cand_exp,can_edu_tenure)
+  exp_score,state,resume_experience_months = experience_score(job_req_exp,cand_exp,can_edu_tenure)
   print("Experience is matched by: ",exp_score)
   
   job_req_edu = job_api_output.get("data",{}).get("DEGREE")
@@ -344,9 +345,21 @@ def final_main(json_data,job_api_output):
      exp_contri = 0.55
      edu_contri = 0.05 
   
+  resume_data={
+    'skills': can_skills, 
+    'experience_years': resume_experience_months//12, 
+    'education': cand_edu_deg
+  }
+  job_data={
+    'skills': job_api_output.get("data", {}).get('SKILLS', []), 
+    'required_experience': job_api_output.get("data", {}).get('EXPERIENCE', []), 
+    'education': job_req_edu
+  }
+  outputdict=suggestion.generate_resume_suggestions(resume_data,job_data)
   final_score = (skill_contri * skill_score_per)+(exp_contri * exp_score)+(edu_contri * edu_score)
   print("The final score is: ",final_score)
-  return final_score
+  # return final_score
+  return final_score,outputdict
 
 
 
