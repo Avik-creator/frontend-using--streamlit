@@ -4,4 +4,7 @@ model2/
 
 # Local Cacahe
 __pycache__
+.venv
+uploads
+
 
