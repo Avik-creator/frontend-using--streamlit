@@ -6,6 +6,7 @@ from Parsing import *
 from Final_model import *
 import streamlit_scrollable_textbox as stx
 import modelbit
+import base64
 from collections import defaultdict
 
 # Set page config must be the first Streamlit command
@@ -427,6 +428,18 @@ def save_uploaded_file(uploaded_file, upload_dir="uploads"):
         st.error(f"An error occurred while saving the file: {e}")
         return None, None
 
+def display_pdf_preview(file_path):
+    """Display a PDF preview using Streamlit's PDF viewer"""
+    try:
+        st.subheader("Resume Preview")  
+        base64_pdf = base64.b64encode(file_path.getvalue()).decode('utf-8')
+        pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="500" type="application/pdf"></iframe>'
+        st.markdown(pdf_display, unsafe_allow_html=True)
+        return True
+    except Exception as e:
+        st.error(f"Error previewing PDF: {str(e)}")
+        return False
+
 
 def process_with_model(saved_path_actual, job_descrip):
     # Create a placeholder for progress updates
@@ -576,6 +589,7 @@ def main():
         saved_path_actual = os.path.join(save_dir, str(path[0]), str(path[1]))
         
         if proceed_button:
+            
             # Process the resume and show results
             probability, suggestions, processed_result, json_data = process_with_model(saved_path_actual, job_role)
             
@@ -583,9 +597,11 @@ def main():
             st.markdown('<div class="result-container">', unsafe_allow_html=True)
             
             # Display results in two columns
-            col1, col2 = st.columns(2)
-            
+            col1, col2, col3 = st.columns(3)
+
             with col1:
+                display_pdf_preview(uploaded_file)
+            with col2:
                 st.subheader("📊 Match Probability")
                 st.markdown(f"""
                 <div class="match-probability-container">
@@ -601,7 +617,7 @@ def main():
                 </div>
                 """, unsafe_allow_html=True)
             
-            with col2:
+            with col3:
                 st.subheader("Resume Improvement Suggestions")
 
                 # Mapping keys to user-friendly section headers
